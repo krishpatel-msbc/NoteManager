@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual Environment
+env/
+venv/
+*.env
+
+# IDE or Editor specific
+.vscode/
+.idea/
+
+# FastAPI related
+*.sqlite
+alembic.ini
+
+# Logs
+*.log
