@@ -5,18 +5,21 @@ from backend.schemas.note import Note, NoteCreate
 from backend.models.note import Note as NoteModel
 from backend.core.deps import get_current_user 
 from backend.models.user import User 
+from backend.logger import logger  # ✅ Add logger
 
-router = APIRouter(prefix="/notes",tags=["Notes"],)
+router = APIRouter(prefix="/notes", tags=["Notes"])
 
 @router.post("/", response_model=Note)
 def create_note(note: NoteCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    logger.info(f"Creating a note for user_id={current_user.id} with title='{note.title}'")
     db_note = NoteModel(**note.dict(exclude={"tags"}), owner_id=current_user.id)
-    # Handle tags in crud usually, but simplified here:
+
     if note.tags:
         tags = []
         for tag_in in note.tags:
             tag = db.query(NoteModel.tags.property.mapper.class_).filter_by(name=tag_in.name).first()
             if not tag:
+                logger.info(f"Creating new tag '{tag_in.name}' for note")
                 tag = NoteModel.tags.property.mapper.class_(name=tag_in.name)
                 db.add(tag)
                 db.commit()
@@ -27,16 +30,22 @@ def create_note(note: NoteCreate, db: Session = Depends(get_db), current_user: U
     db.add(db_note)
     db.commit()
     db.refresh(db_note)
+    logger.info(f"Note created successfully with id={db_note.id}")
     return db_note
 
 @router.get("/{note_id}", response_model=Note)
 def read_note(note_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    logger.info(f"Fetching note id={note_id} for user_id={current_user.id}")
     db_note = db.query(NoteModel).filter(NoteModel.id == note_id, NoteModel.owner_id == current_user.id).first()
     if not db_note:
+        logger.warning(f"Note id={note_id} not found for user_id={current_user.id}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Note not found")
+    logger.info(f"Note id={note_id} retrieved for user_id={current_user.id}")
     return db_note
 
 @router.get("/", response_model=list[Note])
 def read_notes(skip: int = 0, limit: int = 10, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    logger.info(f"Fetching notes for user_id={current_user.id} with skip={skip} and limit={limit}")
     notes = db.query(NoteModel).filter(NoteModel.owner_id == current_user.id).offset(skip).limit(limit).all()
+    logger.info(f"Retrieved {len(notes)} notes for user_id={current_user.id}")
     return notes
