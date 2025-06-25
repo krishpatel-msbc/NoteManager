@@ -1,8 +1,17 @@
+"""
+Defines the Note and Tag ORM models and their many-to-many relationship.
+
+Note: Represents a user-created note with tags.
+Tag: Represents a label that can be attached to multiple notes.
+"""
+
 from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship
 from backend.models.base import Base
 
+
+# Association table for many-to-many relationship between notes and tags
 note_tag_association = Table(
     "note_tag_association",
     Base.metadata,
@@ -11,6 +20,19 @@ note_tag_association = Table(
 )
 
 class Note(Base):
+    """
+    SQLAlchemy model representing a note.
+
+    Attributes:
+        id: Unique identifier for the note.
+        title: Short title of the note.
+        content: Full content/text of the note.
+        created_at: Timestamp of creation.
+        updated_at: Timestamp of last update.
+        owner_id: Foreign key linking to the note's creator (User).
+        owner: Relationship to the User model.
+        tags: Many-to-many relationship with Tag model.
+    """
     __tablename__ = "notes"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -25,6 +47,13 @@ class Note(Base):
 
 
 class Tag(Base):
+    """
+    SQLAlchemy model representing a Tag.
+    Attributes:
+        id: Unique identifier.
+        name: Tag name (unique).
+        notes: Many-to-many relationship with Note model.
+    """
     __tablename__ = "tags"
 
     id = Column(Integer, primary_key=True, index=True)

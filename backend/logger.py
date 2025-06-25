@@ -1,3 +1,8 @@
+"""
+Configures the logging system for NoteManager API.
+Logs are rotated daily and saved to a configured directory.
+"""
+
 import logging
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path

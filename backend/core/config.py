@@ -1,7 +1,15 @@
+"""
+Handles Application configuration using environment variables.
+Reads .env file for values such as database URL and secret key.
+"""
+
 from pydantic_settings import BaseSettings
 from pydantic import Field
 
 class Settings(BaseSettings):
+    """
+    Configuration settings loaded from environment or .env file.
+    """
     DATABASE_URL: str = Field("postgresql+psycopg2://postgres:wheeling96495@localhost/notemanager_db", env="DATABASE_URL")
     SECRET_KEY: str = Field("supersecret", env="SECRET_KEY")
     DEBUG: bool = Field(True, env="DEBUG")
@@ -9,6 +17,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
-
+        
+# Create settings instance
 settings = Settings()
 
