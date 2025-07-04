@@ -10,14 +10,27 @@ class Settings(BaseSettings):
     """
     Configuration settings loaded from environment or .env file.
     """
-    DATABASE_URL: str = Field("postgresql+psycopg2://postgres:wheeling96495@localhost/notemanager_db", env="DATABASE_URL")
-    SECRET_KEY: str = Field("supersecret", env="SECRET_KEY")
-    DEBUG: bool = Field(True, env="DEBUG")
+    DATABASE_URL: str = Field(
+        default="postgresql+psycopg2://postgres:wheeling96495@localhost/notemanager_db",
+        env="DATABASE_URL"
+    )
+    SECRET_KEY: str = Field(
+        default="supersecret",
+        env="SECRET_KEY"
+    )
+    DEBUG: bool = Field(
+        default=True,
+        env="DEBUG"
+    )
+    API_URL: str = Field(
+        ...,  # no default, require it in .env
+        env="API_URL"
+    )
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
-        
+
 # Create settings instance
 settings = Settings()
 
