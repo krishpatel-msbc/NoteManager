@@ -16,6 +16,9 @@ from backend.api.route_auth import router as auth_router
 from backend.logger import logger
 from dotenv import load_dotenv
 import os
+from backend.utils.audit_watcher import audit_log_watcher
+import threading
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -29,6 +32,9 @@ async def lifespan(app: FastAPI):
     Logs messages when the app starts and shuts down.
     """
     logger.info("NoteManager API is starting up...")
+    # start audit log watcher
+    thread = threading.Thread(target = audit_log_watcher, daemon = True)
+    thread.start()
     yield
     logger.info("NoteManager API is shutting down...")
 
