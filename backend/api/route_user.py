@@ -15,7 +15,7 @@ from backend.logger import logger  # Logger for info and error tracking
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.post("/", response_model=user_schema.User)
+@router.post("/", response_model=user_schema.User, status_code=201)
 def create_user(user_in: user_schema.UserCreate, db: Session = Depends(get_db)):
     """
     Create a new user.

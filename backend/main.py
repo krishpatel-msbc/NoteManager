@@ -6,45 +6,25 @@ Initializes the FastAPI app, includes routes, and handles startup/shutdown loggi
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
-from backend.db.database import engine
-from backend.models.base import Base
-from backend.models.user import User
-from backend.models.note import Note, Tag
 from backend.api.route_user import router as user_router
 from backend.api.route_note import router as note_router
 from backend.api.route_auth import router as auth_router 
 from backend.logger import logger
 from dotenv import load_dotenv
-import os
-from backend.utils.api_notifier import api_call_worker
 import threading
-import webbrowser
+from backend.utils.api_notifier import api_call_worker
 
-
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
-
-# Create all tables in the database
-Base.metadata.create_all(bind=engine)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Logs messages when the app starts and shuts down.
-    Starts the API notifier background thread.
-    """
     logger.info("NoteManager API is starting up...")
-
-    # Open webhook.site in default browser
-    webbrowser.open("https://webhook.site/#/feae50a3-1af1-4a91-bc80-724b53915f1d")
-
-    # Start audit log watcher
-    thread = threading.Thread(target = api_call_worker, daemon = True)
+    thread = threading.Thread(target=api_call_worker, daemon=True)
     thread.start()
     yield
     logger.info("NoteManager API is shutting down...")
 
-# Initialize FastAPI app with metadata and lifespan handler
 app = FastAPI(
     title="NoteManager API",
     description="A simple CRUD API to manage notes using FastAPI and SQLAlchemy",
@@ -54,16 +34,12 @@ app = FastAPI(
 
 @app.get("/")
 def read_root():
-    """
-    Root endpoint of the NoteManager API.
-    Returns a welcome message.
-    """
     logger.info("Root endpoint '/' was accessed.")
     return JSONResponse(content={"msg": "Welcome to the NoteManager API."})
 
-# Register all API routers
-app.include_router(auth_router, prefix="", tags=["Auth"])  
-app.include_router(user_router, prefix="/users", tags=["Users"])
-app.include_router(note_router, prefix="/notes", tags=["Notes"])
+# Register routers
+app.include_router(user_router)
+app.include_router(note_router)
+app.include_router(auth_router)
 
-logger.info("Routes for auth, users and note registered. App Ready.")
+logger.info("Routes registered. App Ready.")
