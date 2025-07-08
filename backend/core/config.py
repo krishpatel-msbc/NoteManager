@@ -1,7 +1,7 @@
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
 
-# Load the appropriate .env
+# Automatically load test env if running pytest
 if os.getenv("PYTEST_CURRENT_TEST"):
     load_dotenv(".env.test")
 else:
@@ -10,30 +10,19 @@ else:
 from pydantic_settings import BaseSettings
 from pydantic import Field
 
+
 class Settings(BaseSettings):
     DATABASE_URL: str = Field(
-        default="postgresql+psycopg2://postgres:password@localhost/notemanager_db",
+        ...,  # Required
         env="DATABASE_URL"
     )
-    TEST_DATABASE_URL: str = Field(
-        default="postgresql+psycopg2://postgres:password@localhost/notemanager_test_db",
-        env="TEST_DATABASE_URL"
-    )
-    SECRET_KEY: str = Field(
-        default="supersecret",
-        env="SECRET_KEY"
-    )
-    DEBUG: bool = Field(
-        default=True,
-        env="DEBUG"
-    )
-    API_URL: str = Field(
-        ...,  # required in .env
-        env="API_URL"
-    )
+    SECRET_KEY: str = Field(..., env="SECRET_KEY")
+    DEBUG: bool = Field(default=False, env="DEBUG")
+    API_URL: str = Field(..., env="API_URL")
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+
 
 settings = Settings()
