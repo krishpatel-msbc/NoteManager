@@ -2,21 +2,21 @@
 Main application entrypoint for the NoteManager API.
 Initializes the FastAPI app, includes routes, and handles startup/shutdown logging.
 """
+import threading
+import webbrowser
+import time
+from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+# Load environment variables
+load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from contextlib import asynccontextmanager
 from backend.api.route_user import router as user_router
 from backend.api.route_note import router as note_router
 from backend.api.route_auth import router as auth_router 
 from backend.logger import logger
-from dotenv import load_dotenv
-import threading
-import webbrowser
-import time
 
-# Load environment variables
-load_dotenv()
 
 EXTERNAL_URL = "https://webhook.site/feae50a3-1af1-4a91-bc80-724b53915f1d"
 
